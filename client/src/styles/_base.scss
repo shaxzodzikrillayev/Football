@@ -1,0 +1,469 @@
+@use './tokens' as *;
+
+// ============================================================
+//  Базовые стили
+// ============================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: $font-body;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(212, 175, 55, 0.09), transparent 42%),
+    radial-gradient(circle at 88% 22%, rgba(212, 175, 55, 0.055), transparent 45%),
+    linear-gradient(180deg, #0a0c10 0%, #08090b 45%, #07080a 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  @include scrollbar;
+}
+
+body.is-locked {
+  overflow: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  @include focus-ring;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: #0a0a0a;
+}
+
+// ---------------------------------------------------------- Служебные классы
+
+.container {
+  @include container;
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-gap);
+}
+
+.section--alt {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0)),
+    var(--color-bg);
+  border-block: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -80px;
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--color-gold);
+  color: #0a0a0a;
+  font-weight: 700;
+  border-radius: 0 0 12px 12px;
+  transition: top 0.2s ease;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// ---------------------------------------------------------- Заголовки секций
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: clamp(28px, 4vw, 52px);
+}
+
+.section-head__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+
+  &::before {
+    content: '';
+    width: 34px;
+    height: 2px;
+    @include gold-gradient;
+    border-radius: 2px;
+  }
+}
+
+.section-head__title {
+  font-family: $font-display;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.section-head__subtitle {
+  max-width: 62ch;
+  color: var(--color-muted);
+  font-size: clamp(0.98rem, 1.4vw, 1.12rem);
+}
+
+.section-head--center {
+  align-items: center;
+  text-align: center;
+
+  .section-head__subtitle {
+    margin-inline: auto;
+  }
+}
+
+.gold-word {
+  @include gold-text;
+}
+
+// ---------------------------------------------------------- Кнопки
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 26px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+.btn--gold {
+  @include gold-gradient;
+  color: #0b0b0c;
+  box-shadow: var(--shadow-gold);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.65) 45%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 45px -18px rgba(212, 175, 55, 0.75);
+
+    &::after {
+      transform: translateX(120%);
+    }
+  }
+}
+
+.btn--ghost {
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.03);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+    transform: translateY(-2px);
+  }
+}
+
+.btn--outline-gold {
+  border-color: var(--color-gold-line);
+  color: var(--color-gold);
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    background: var(--color-gold-soft);
+    transform: translateY(-2px);
+  }
+}
+
+.btn--danger {
+  border-color: rgba(255, 92, 92, 0.4);
+  color: #ff8080;
+  background: rgba(255, 92, 92, 0.08);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 92, 92, 0.16);
+    border-color: rgba(255, 92, 92, 0.7);
+  }
+}
+
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 0.74rem;
+}
+
+.btn--icon {
+  padding: 10px;
+  border-radius: 12px;
+}
+
+// ---------------------------------------------------------- Формы
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field__label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.field__hint {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--color-text);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: rgba(133, 137, 149, 0.8);
+  }
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    background: rgba(212, 175, 55, 0.06);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+  }
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23858995' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+
+  option {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.input--color {
+  padding: 6px;
+  height: 46px;
+  cursor: pointer;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--color-gold);
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__track {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: background 0.22s ease, border-color 0.22s ease;
+  }
+
+  &__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-muted);
+    transition: transform 0.22s ease, background 0.22s ease;
+  }
+
+  input:checked + .switch__track {
+    background: var(--color-gold-soft);
+    border-color: var(--color-gold);
+
+    .switch__thumb {
+      transform: translateX(20px);
+      background: var(--color-gold);
+    }
+  }
+
+  input:focus-visible + .switch__track {
+    @include focus-ring;
+  }
+}
+
+// ---------------------------------------------------------- Появление при скролле
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+
+  &.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+  }
+}

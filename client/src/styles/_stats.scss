@@ -1,0 +1,158 @@
+@use './tokens' as *;
+
+.stats {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: clamp(28px, 4vw, 48px);
+  }
+
+  &__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    align-items: start;
+
+    @media (max-width: 940px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__panel {
+    @include card-surface;
+    padding: clamp(20px, 2.4vw, 30px);
+  }
+
+  &__panel-title {
+    font-family: $font-display;
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+}
+
+.form-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 92px 1fr 44px;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.84rem;
+  }
+
+  &__label {
+    color: var(--color-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+  }
+
+  &__track {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+
+    &--win {
+      @include gold-gradient;
+    }
+
+    &--draw {
+      background: #6f7686;
+    }
+
+    &--loss {
+      background: #7a3030;
+    }
+  }
+
+  &__value {
+    text-align: right;
+    font-family: $font-display;
+    font-size: 1.15rem;
+  }
+}
+
+.note {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+
+  svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--color-gold);
+  }
+}
+
+// ---------------------------------------------------------- Форма команды
+
+.form-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  &__label {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  &__items {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.form-chip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-family: $font-display;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+
+  &--win {
+    @include gold-gradient;
+    color: #0c0c0d;
+    box-shadow: var(--shadow-gold);
+  }
+
+  &--draw {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--color-text);
+  }
+
+  &--loss {
+    background: rgba(122, 48, 48, 0.3);
+    border-color: rgba(255, 108, 108, 0.32);
+    color: #ff9d9d;
+  }
+}

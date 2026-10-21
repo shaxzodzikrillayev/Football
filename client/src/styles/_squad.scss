@@ -1,0 +1,489 @@
+@use './tokens' as *;
+
+.squad {
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 26px;
+  }
+}
+
+.formation-tabs {
+  display: inline-flex;
+  padding: 5px;
+  gap: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+
+  &__item {
+    padding: 9px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-muted);
+    font-family: $font-display;
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease,
+      box-shadow 0.25s ease;
+
+    &:hover {
+      color: var(--color-text);
+    }
+
+    &.is-active {
+      @include gold-gradient;
+      color: #0c0c0d;
+      box-shadow: var(--shadow-gold);
+    }
+  }
+}
+
+.pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 68 / 96;
+  max-height: 860px;
+  margin-inline: auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035) 0 8.333%,
+      rgba(0, 0, 0, 0.05) 8.333% 16.666%
+    ),
+    linear-gradient(180deg, #1f6b3a 0%, #175733 45%, #104228 100%);
+  box-shadow:
+    0 40px 90px -55px #000,
+    inset 0 0 120px -40px rgba(0, 0, 0, 0.8);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 3.2%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 50% 42%,
+      rgba(255, 255, 255, 0.09),
+      transparent 58%
+    );
+  }
+
+  &__half {
+    position: absolute;
+    left: 3.2%;
+    right: 3.2%;
+    top: 50%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  &__circle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 26%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+  }
+
+  &__spot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  &__box {
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    height: 15%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  &__box--top {
+    top: 3.2%;
+    border-top: 0;
+  }
+
+  &__box--bottom {
+    bottom: 3.2%;
+    border-bottom: 0;
+  }
+
+  &__six {
+    position: absolute;
+    left: 32%;
+    right: 32%;
+    height: 6%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  &__six--top {
+    top: 3.2%;
+    border-top: 0;
+  }
+
+  &__six--bottom {
+    bottom: 3.2%;
+    border-bottom: 0;
+  }
+
+  &__label {
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    z-index: 4;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.pitch-player {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, 50%);
+  width: clamp(84px, 11.5%, 116px);
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover,
+  &:focus-visible {
+    transform: translate(-50%, 50%) scale(1.08);
+    z-index: 6;
+  }
+
+  &__card {
+    position: relative;
+    border-radius: 14px;
+    padding: 2px;
+    @include gold-gradient;
+    box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.95);
+    transition: box-shadow 0.3s ease;
+  }
+
+  &__inner {
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #191c22 0%, #0c0e12 100%);
+  }
+
+  &__photo {
+    position: relative;
+    aspect-ratio: 1 / 1.08;
+    background:
+      radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.2), transparent 62%),
+      linear-gradient(180deg, #23272f 0%, #0e1014 100%);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  &__placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: $font-display;
+    font-size: 1.9rem;
+    color: rgba(212, 175, 55, 0.6);
+  }
+
+  &__number {
+    position: absolute;
+    bottom: 2px;
+    right: 6px;
+    font-family: $font-display;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  }
+
+  &__rating {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    min-width: 26px;
+    padding: 2px 5px;
+    border-radius: 6px;
+    @include gold-gradient;
+    color: #0c0c0d;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-align: center;
+  }
+
+  &__info {
+    padding: 6px 5px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.15;
+    @include line-clamp(1);
+  }
+
+  &__position {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    font-weight: 700;
+  }
+
+  &__flag {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    font-size: 0.78rem;
+    opacity: 0.9;
+  }
+
+  &__badge {
+    position: absolute;
+    top: -7px;
+    left: -7px;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 8px;
+    @include gold-gradient;
+    color: #0c0c0d;
+    font-family: $font-display;
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.95);
+  }
+
+  &.is-empty .pitch-player__card {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+}
+
+.pitch-empty {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, 50%);
+  width: clamp(78px, 11%, 104px);
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(8, 20, 13, 0.35);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 6px;
+}
+
+// ---------------------------------------------------------- Запасные
+
+.bench {
+  margin-top: clamp(28px, 4vw, 48px);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: $font-display;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.5), transparent);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+  }
+}
+
+.bench-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-gold-line);
+    background: rgba(212, 175, 55, 0.06);
+  }
+
+  &__photo {
+    position: relative;
+    width: 52px;
+    height: 62px;
+    flex: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #23272f, #0e1014);
+    display: grid;
+    place-items: center;
+    font-family: $font-display;
+    font-size: 1.2rem;
+    color: rgba(212, 175, 55, 0.65);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    @include line-clamp(1);
+  }
+
+  &__meta {
+    font-size: 0.74rem;
+    color: var(--color-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+// ---------------------------------------------------------- Адаптация под телефон
+
+@media (max-width: 720px) {
+  .pitch-player {
+    width: clamp(62px, 18%, 92px);
+
+    &__name {
+      font-size: 0.6rem;
+    }
+
+    &__position {
+      font-size: 0.5rem;
+      letter-spacing: 0.08em;
+    }
+
+    &__rating {
+      min-width: 22px;
+      padding: 1px 4px;
+      font-size: 0.62rem;
+    }
+
+    &__number {
+      font-size: 1.15rem;
+    }
+
+    &__flag {
+      font-size: 0.62rem;
+    }
+  }
+
+  .pitch-empty {
+    width: clamp(56px, 17%, 82px);
+    font-size: 0.52rem;
+  }
+
+  .formation-tabs__item {
+    padding: 8px 14px;
+    font-size: 0.95rem;
+  }
+
+  .bench__grid {
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 10px;
+  }
+
+  .bench-card {
+    gap: 9px;
+    padding: 8px 10px;
+
+    &__photo {
+      width: 44px;
+      height: 54px;
+    }
+
+    &__name {
+      font-size: 0.84rem;
+    }
+
+    &__meta {
+      font-size: 0.68rem;
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .pitch-player__info {
+    display: none;
+  }
+}

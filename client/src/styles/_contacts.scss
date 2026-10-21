@@ -1,0 +1,137 @@
+@use './tokens' as *;
+
+.contacts {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  &__card {
+    @include card-surface;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition:
+      transform 0.3s ease,
+      border-color 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-gold-line);
+    }
+  }
+
+  &__icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: var(--color-gold-soft);
+    border: 1px solid var(--color-gold-line);
+    color: var(--color-gold);
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  &__value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    word-break: break-word;
+
+    a {
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--color-gold);
+      }
+    }
+  }
+
+  &__note {
+    margin-top: 12px;
+  }
+
+  &__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  &__social {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+    }
+  }
+
+  // ---------------------------------------------------------- Призыв к действию
+
+  &__cta {
+    position: relative;
+    margin-top: clamp(24px, 3vw, 40px);
+    padding: clamp(22px, 3vw, 38px);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    background:
+      radial-gradient(circle at 88% 12%, rgba(212, 175, 55, 0.16), transparent 58%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 45%),
+      var(--color-surface);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  &__cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 62ch;
+  }
+
+  &__cta-title {
+    font-family: $font-display;
+    font-size: clamp(1.5rem, 3vw, 2.3rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__cta-subtitle {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+  }
+}

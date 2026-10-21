@@ -1,0 +1,81 @@
+@use './tokens' as *;
+
+// ============================================================
+//  Заглушки для ленивой подгрузки секций
+// ============================================================
+
+.section-skeleton {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding: clamp(40px, 8vw, 110px) clamp(18px, 4vw, 48px);
+
+  span,
+  i {
+    display: block;
+    border-radius: 12px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.09) 50%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  &__line {
+    height: 14px;
+    width: min(420px, 70%);
+
+    &--title {
+      height: 34px;
+      width: min(320px, 55%);
+    }
+
+    &--short {
+      width: min(280px, 45%);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+
+    i {
+      height: 190px;
+      border-radius: var(--radius-lg);
+    }
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .section-skeleton__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    i {
+      height: 140px;
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .section-skeleton__grid {
+    grid-template-columns: 1fr;
+  }
+}

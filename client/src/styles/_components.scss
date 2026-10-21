@@ -1,0 +1,791 @@
+@use './tokens' as *;
+
+// ============================================================
+//  Общие компоненты
+// ============================================================
+
+// ---------------------------------------------------------- Логотип
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  &__mark {
+    position: relative;
+    flex: none;
+    filter: drop-shadow(0 6px 18px rgba(212, 175, 55, 0.32));
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+
+    strong {
+      font-family: $font-display;
+      font-size: 1.55rem;
+      letter-spacing: 0.12em;
+      @include gold-text;
+    }
+
+    span {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.42em;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+  }
+
+  &--compact &__text strong {
+    font-size: 1.25rem;
+  }
+}
+
+// ---------------------------------------------------------- Бейджи и чипы
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.chip--gold {
+  border-color: var(--color-gold-line);
+  background: var(--color-gold-soft);
+  color: var(--color-gold);
+}
+
+.chip--demo {
+  border-style: dashed;
+  color: #9aa0ad;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.86rem;
+
+  &__emoji {
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  &__name {
+    color: var(--color-muted);
+  }
+}
+
+// ---------------------------------------------------------- Карточка игрока
+
+.player-card {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 20px;
+  isolation: isolate;
+
+  &__frame {
+    position: relative;
+    border-radius: 20px;
+    padding: 2px;
+    @include gold-gradient;
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s ease;
+    box-shadow: var(--shadow-card);
+  }
+
+  &__inner {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1a1d24 0%, #0d0f13 100%);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__photo {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 22%, rgba(212, 175, 55, 0.16), transparent 62%),
+      linear-gradient(180deg, #23272f 0%, #101318 100%);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+      filter: saturate(0.92) contrast(1.05);
+    }
+  }
+
+  &__placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: rgba(212, 175, 55, 0.55);
+
+    span {
+      font-family: $font-display;
+      font-size: 3.4rem;
+      letter-spacing: 0.04em;
+      opacity: 0.85;
+    }
+  }
+
+  &__number {
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    font-family: $font-display;
+    font-size: 3.4rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.16);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &__rating {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    @include gold-gradient;
+    color: #0c0c0d;
+    font-weight: 800;
+    font-size: 0.92rem;
+    box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.9);
+
+    small {
+      font-size: 0.58rem;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+  }
+
+  &__body {
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  &__position {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  &__name {
+    font-size: 0.98rem;
+    font-weight: 800;
+    line-height: 1.2;
+    @include line-clamp(2);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 0.76rem;
+    color: var(--color-muted);
+  }
+
+  &__badge {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    padding: 6px 16px;
+    border-radius: 8px;
+    @include gold-gradient;
+    color: #0c0c0d;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  &:hover &__frame,
+  &:focus-visible &__frame {
+    transform: translateY(-8px);
+    box-shadow:
+      0 26px 48px -22px rgba(0, 0, 0, 0.95),
+      0 0 0 1px rgba(212, 175, 55, 0.35),
+      0 0 40px -12px rgba(212, 175, 55, 0.5);
+  }
+
+  &:hover &__photo img,
+  &:focus-visible &__photo img {
+    transform: scale(1.07);
+    filter: saturate(1.05) contrast(1.05);
+  }
+
+  &:hover &__badge,
+  &:focus-visible &__badge {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1.05);
+  }
+}
+
+// ---------------------------------------------------------- Модальное окно
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 5, 7, 0.82);
+  backdrop-filter: blur(10px);
+  animation: fade-in 0.25s ease;
+}
+
+.modal {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: min(90vh, 860px);
+  overflow-y: auto;
+  @include scrollbar;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 40%),
+    var(--color-surface);
+  box-shadow: 0 40px 90px -40px #000;
+  animation: modal-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(10, 11, 14, 0.75);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.player-detail {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+
+  &__photo {
+    position: relative;
+    min-height: 380px;
+    background:
+      radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.2), transparent 60%),
+      linear-gradient(180deg, #242830 0%, #0e1014 100%);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  &__placeholder {
+    font-family: $font-display;
+    font-size: 5rem;
+    color: rgba(212, 175, 55, 0.5);
+  }
+
+  &__content {
+    padding: clamp(22px, 3vw, 34px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-family: $font-display;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  &__stat {
+    @include card-surface;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+
+    strong {
+      display: block;
+      font-family: $font-display;
+      font-size: 1.9rem;
+      line-height: 1;
+      @include gold-text;
+    }
+
+    span {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+  }
+}
+
+// ---------------------------------------------------------- Статистика
+
+.stat-card {
+  position: relative;
+  @include card-surface;
+  padding: 22px 22px 24px;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    @include gold-gradient;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s ease;
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: var(--color-gold-line);
+    box-shadow: var(--shadow-card);
+
+    &::before {
+      transform: scaleX(1);
+    }
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--color-gold-soft);
+    border: 1px solid var(--color-gold-line);
+    color: var(--color-gold);
+    margin-bottom: 16px;
+  }
+
+  &__value {
+    font-family: $font-display;
+    font-size: clamp(2.4rem, 4vw, 3.2rem);
+    line-height: 1;
+    @include gold-text;
+  }
+
+  &__label {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+}
+
+// ---------------------------------------------------------- Матчи
+
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  @include card-surface;
+  border-radius: var(--radius-md);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 48px 1fr;
+    row-gap: 10px;
+  }
+
+  &:hover {
+    transform: translateX(4px);
+    border-color: var(--color-gold-line);
+  }
+
+  &__crest {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-family: $font-display;
+    font-size: 1.3rem;
+    color: var(--color-gold);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-gold-line);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__opponent {
+    font-weight: 700;
+    font-size: 1rem;
+    @include line-clamp(1);
+  }
+
+  &__competition {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+  }
+
+  &__score {
+    font-family: $font-display;
+    font-size: 1.9rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+
+    &--pending {
+      font-size: 0.95rem;
+      font-family: $font-body;
+      font-weight: 700;
+      color: var(--color-muted);
+    }
+  }
+
+  &__status {
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    font-weight: 800;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  &__status--win {
+    color: #6ee7a0;
+    border-color: rgba(110, 231, 160, 0.35);
+    background: rgba(110, 231, 160, 0.08);
+  }
+
+  &__status--draw {
+    color: #f5d372;
+    border-color: rgba(245, 211, 114, 0.35);
+    background: rgba(245, 211, 114, 0.08);
+  }
+
+  &__status--loss {
+    color: #ff8f8f;
+    border-color: rgba(255, 143, 143, 0.35);
+    background: rgba(255, 143, 143, 0.08);
+  }
+}
+
+// ---------------------------------------------------------- Пустые состояния
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 42px 24px;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-muted);
+
+  strong {
+    color: var(--color-text);
+    font-size: 1.05rem;
+  }
+
+  p {
+    max-width: 52ch;
+    font-size: 0.92rem;
+  }
+}
+
+// ---------------------------------------------------------- Загрузчик
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 260px;
+  color: var(--color-muted);
+
+  &__ring {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    border-top-color: var(--color-gold);
+    animation: spin 0.9s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton {
+  border-radius: 14px;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// ---------------------------------------------------------- Уведомления
+
+.toast-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(380px, calc(100vw - 36px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(17, 19, 24, 0.96);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 22px 45px -25px #000;
+  font-size: 0.9rem;
+  animation: toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &--success {
+    border-color: rgba(110, 231, 160, 0.35);
+    color: #a7f3c8;
+
+    svg {
+      color: #6ee7a0;
+    }
+  }
+
+  &--error {
+    border-color: rgba(255, 143, 143, 0.35);
+    color: #ffc9c9;
+
+    svg {
+      color: #ff8f8f;
+    }
+  }
+
+  &--info {
+    border-color: var(--color-gold-line);
+    color: var(--color-gold);
+
+    svg {
+      color: var(--color-gold);
+    }
+  }
+
+  &__text {
+    flex: 1;
+    color: var(--color-text);
+    line-height: 1.45;
+  }
+
+  &__close {
+    flex: none;
+    background: none;
+    border: 0;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 6px;
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// ---------------------------------------------------------- Диалог подтверждения
+
+.confirm {
+  width: min(440px, 100%);
+  padding: 26px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: var(--color-surface);
+  box-shadow: 0 40px 90px -40px #000;
+  animation: modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+  h3 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: var(--color-muted);
+    font-size: 0.94rem;
+    margin-bottom: 22px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}

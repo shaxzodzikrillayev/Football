@@ -1,0 +1,1086 @@
+@use './tokens' as *;
+
+// ============================================================
+//  Страница входа
+// ============================================================
+
+.auth {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 45%),
+    linear-gradient(180deg, #0a0c10, #07080a);
+
+  &__card {
+    width: min(440px, 100%);
+    padding: clamp(26px, 4vw, 40px);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 38%),
+      var(--color-surface);
+    box-shadow: 0 40px 90px -50px #000;
+  }
+
+  &__logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+
+  &__title {
+    text-align: center;
+    font-family: $font-display;
+    font-size: 2rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    margin: 8px 0 26px;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__error {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 143, 143, 0.35);
+    background: rgba(255, 143, 143, 0.08);
+    color: #ffc9c9;
+    font-size: 0.86rem;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    font-size: 0.84rem;
+    color: var(--color-muted);
+    justify-content: center;
+    width: 100%;
+
+    &:hover {
+      color: var(--color-gold);
+    }
+  }
+}
+
+// ============================================================
+//  Панель администратора
+// ============================================================
+
+.admin {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  background: var(--color-bg);
+
+  @media (max-width: 980px) {
+    grid-template-columns: 1fr;
+  }
+
+  &__sidebar {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 22px 18px;
+    background: linear-gradient(180deg, #0e1014, #0a0b0e);
+    border-right: 1px solid rgba(212, 175, 55, 0.16);
+    overflow-y: auto;
+    @include scrollbar;
+
+    @media (max-width: 980px) {
+      position: fixed;
+      z-index: 90;
+      width: 272px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      box-shadow: 30px 0 60px -40px #000;
+
+      &.is-open {
+        transform: none;
+      }
+    }
+  }
+
+  &__overlay {
+    display: none;
+
+    @media (max-width: 980px) {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 85;
+      background: rgba(4, 5, 7, 0.7);
+      backdrop-filter: blur(3px);
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: none;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background 0.22s ease,
+      color 0.22s ease,
+      border-color 0.22s ease;
+
+    svg {
+      flex: none;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--color-text);
+    }
+
+    &.is-active {
+      background: var(--color-gold-soft);
+      border-color: var(--color-gold-line);
+      color: var(--color-gold);
+    }
+  }
+
+  &__footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  &__main {
+    min-width: 0;
+    padding: clamp(18px, 3vw, 34px);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  &__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    margin-top: 4px;
+  }
+
+  &__menu-btn {
+    display: none;
+
+    @media (max-width: 980px) {
+      display: grid;
+    }
+  }
+}
+
+.admin-panel {
+  @include card-surface;
+  padding: clamp(18px, 2.4vw, 26px);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  &__hint {
+    color: var(--color-muted);
+    font-size: 0.84rem;
+    margin-top: 4px;
+    max-width: 70ch;
+  }
+}
+
+.admin-grid {
+  display: grid;
+  gap: 16px;
+
+  &--2 {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  &--3 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  &--stats {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.kpi {
+  @include card-surface;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__value {
+    font-family: $font-display;
+    font-size: 2.3rem;
+    line-height: 1;
+    @include gold-text;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+}
+
+// ---------------------------------------------------------- Загрузка изображений
+
+.uploader {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.uploader__preview {
+  position: relative;
+  width: 168px;
+  height: 210px;
+  flex: none;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-gold-line);
+  background:
+    radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.18), transparent 62%),
+    linear-gradient(180deg, #23272f, #0e1014);
+  display: grid;
+  place-items: center;
+  color: rgba(212, 175, 55, 0.6);
+  font-family: $font-display;
+  font-size: 1.6rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+}
+
+.uploader__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 240px;
+  flex: 1;
+}
+
+.uploader__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+// ---------------------------------------------------------- Таблица игроков
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+
+  th {
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: 700;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: rgba(255, 255, 255, 0.025);
+  }
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  @include scrollbar;
+}
+
+.table-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.table-thumb {
+  width: 40px;
+  height: 48px;
+  border-radius: 9px;
+  object-fit: cover;
+  object-position: top center;
+  background: linear-gradient(180deg, #23272f, #0e1014);
+  display: grid;
+  place-items: center;
+  font-family: $font-display;
+  color: rgba(212, 175, 55, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    color: var(--color-gold);
+    border-color: var(--color-gold-line);
+    background: var(--color-gold-soft);
+  }
+
+  &--danger:hover {
+    color: #ff8f8f;
+    border-color: rgba(255, 143, 143, 0.4);
+    background: rgba(255, 143, 143, 0.08);
+  }
+}
+
+// ---------------------------------------------------------- Список игроков
+
+.admin-table__thumb {
+  width: 40px;
+  height: 48px;
+  flex: none;
+  border-radius: 9px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #23272f, #0e1014);
+  display: grid;
+  place-items: center;
+  font-family: $font-display;
+  color: rgba(212, 175, 55, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+}
+
+.player-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  strong {
+    font-size: 0.92rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  small {
+    font-size: 0.72rem;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+}
+
+.admin-table tbody tr {
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &.is-selected {
+    background: rgba(212, 175, 55, 0.09);
+  }
+}
+
+.players-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.players-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+
+  @media (max-width: 1180px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---------------------------------------------------------- Тактика: drag & drop
+
+.tactics-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tactics-pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 68 / 88;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.035) 0 8.333%,
+      rgba(0, 0, 0, 0.05) 8.333% 16.666%
+    ),
+    linear-gradient(180deg, #1f6b3a 0%, #175733 45%, #104228 100%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 3.2%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+  }
+
+  &__half {
+    position: absolute;
+    left: 3.2%;
+    right: 3.2%;
+    top: 50%;
+    height: 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+  }
+
+  &__circle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 26%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+}
+
+.tactics-toolbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+
+    .select {
+      flex: 1 1 130px;
+      min-width: 0;
+    }
+  }
+}
+
+.tactics-slot {
+  position: absolute;
+  transform: translate(-50%, 50%);
+  width: clamp(76px, 13%, 104px);
+  min-height: 96px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  background: rgba(6, 22, 13, 0.45);
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  &__label {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  &__empty {
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    text-align: center;
+  }
+
+  &__remove {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 143, 143, 0.45);
+    background: #171a21;
+    color: #ff8f8f;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 143, 143, 0.18);
+      color: #ffc9c9;
+    }
+  }
+
+  &:hover {
+    border-color: var(--color-gold);
+    background: rgba(212, 175, 55, 0.12);
+  }
+
+  &.is-over {
+    border-color: var(--color-gold);
+    background: rgba(212, 175, 55, 0.2);
+    transform: translate(-50%, 50%) scale(1.05);
+  }
+
+  &.is-filled {
+    border-style: solid;
+    border-color: rgba(212, 175, 55, 0.5);
+    background: rgba(6, 22, 13, 0.7);
+  }
+}
+
+// ---------------------------------------------------------- Тактика на телефоне
+
+@media (max-width: 720px) {
+  .tactics-pitch {
+    aspect-ratio: 3 / 4;
+  }
+
+  .tactics-slot {
+    width: clamp(58px, 20%, 84px);
+    min-height: 72px;
+    padding: 4px;
+
+    &__label {
+      font-size: 0.48rem;
+      letter-spacing: 0.04em;
+    }
+
+    &__empty {
+      display: none;
+    }
+
+    &__remove {
+      width: 20px;
+      height: 20px;
+      top: -6px;
+      right: -6px;
+    }
+  }
+
+  .drag-chip {
+    padding: 3px;
+
+    &__photo {
+      font-size: 1rem;
+      border-radius: 7px;
+    }
+
+    &__name {
+      display: none;
+    }
+
+    &__meta {
+      font-size: 0.5rem;
+    }
+  }
+
+  .tactics-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drag-chip {
+  width: 100%;
+  border-radius: 12px;
+  padding: 5px;
+  background: linear-gradient(180deg, #1b1f26, #0c0e12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  text-align: center;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.is-dragging {
+    opacity: 0.45;
+  }
+
+  &__photo {
+    position: relative;
+    aspect-ratio: 1 / 1.05;
+    border-radius: 9px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #23272f, #0e1014);
+    display: grid;
+    place-items: center;
+    font-family: $font-display;
+    font-size: 1.3rem;
+    color: rgba(212, 175, 55, 0.65);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  &__name {
+    font-size: 0.66rem;
+    font-weight: 700;
+    margin-top: 4px;
+    @include line-clamp(1);
+  }
+
+  &__meta {
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    color: var(--color-gold);
+  }
+
+  &--compact {
+    padding: 3px;
+
+    .drag-chip__photo {
+      border-radius: 7px;
+    }
+  }
+}
+
+.bench-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding: 4px;
+  @include scrollbar;
+
+  &__empty {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+  }
+
+  &.is-over {
+    outline: 2px dashed var(--color-gold);
+    outline-offset: -6px;
+    border-radius: 14px;
+  }
+}
+
+.bench-list__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  cursor: grab;
+  touch-action: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  strong {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  &:hover {
+    border-color: var(--color-gold-line);
+    background: rgba(212, 175, 55, 0.06);
+  }
+
+  &.is-dragging {
+    opacity: 0.45;
+  }
+}
+
+.bench-list__thumb {
+  width: 38px;
+  height: 44px;
+  flex: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #23272f, #0e1014);
+  display: grid;
+  place-items: center;
+  font-family: $font-display;
+  color: rgba(212, 175, 55, 0.65);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+}
+
+.drag-ghost {
+  position: fixed;
+  z-index: 400;
+  pointer-events: none;
+  width: 96px;
+  border-radius: 12px;
+  padding: 5px;
+  background: linear-gradient(180deg, #1b1f26, #0c0e12);
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 20px 40px -20px #000;
+  transform: translate(-50%, -50%) scale(1.05);
+  text-align: center;
+
+  img {
+    width: 100%;
+    border-radius: 9px;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  &__placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1.05;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #23272f, #0e1014);
+    font-family: $font-display;
+    font-size: 1.3rem;
+    color: rgba(212, 175, 55, 0.65);
+  }
+}
+
+.loader--page {
+  min-height: 100svh;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 200px;
+
+  svg {
+    position: absolute;
+    left: 13px;
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+
+  .input {
+    padding-left: 40px;
+  }
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &.is-active {
+    background: var(--color-gold-soft);
+    border-color: var(--color-gold-line);
+    color: var(--color-gold);
+  }
+}
+
+// ---------------------------------------------------------- Ценности клуба
+
+.value-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__item {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      color: var(--color-text);
+      transform: translateY(-2px);
+    }
+
+    &.is-active {
+      @include gold-gradient;
+      border-color: transparent;
+      color: #0c0c0d;
+      box-shadow: var(--shadow-gold);
+    }
+  }
+}
+
+.value-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease;
+
+    &.is-selected {
+      border-color: var(--color-gold-line);
+      background: var(--color-gold-soft);
+    }
+
+    &.is-hidden {
+      opacity: 0.55;
+    }
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--color-gold-soft);
+    border: 1px solid var(--color-gold-line);
+    color: var(--color-gold);
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+
+    strong {
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    small {
+      font-size: 0.74rem;
+      color: var(--color-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px dashed rgba(212, 175, 55, 0.4);
+    background: transparent;
+    color: var(--color-gold);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: var(--color-gold-soft);
+    }
+  }
+}

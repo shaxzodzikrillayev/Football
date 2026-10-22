@@ -27,6 +27,20 @@ const databasePath = process.env.DATABASE_PATH
 function resolveSessionSecret(): string {
   const fromEnv = process.env.SESSION_SECRET?.trim();
   if (fromEnv && fromEnv.length >= 16) return fromEnv;
+
+  // На Vercel сайт обслуживают несколько НЕЗАВИСИМЫХ копий сервера. Если
+  // секрет генерировать случайным, каждая копия получит СВОЙ: сессия,
+  // созданная на копии A, не проверится на копии B (токен подписывается
+  // секретом) → 401 и выкидывание из админки. Запасной секрет выводим
+  // детерминированно из хеша пароля админа — он одинаков у всех копий.
+  const hash = process.env.ADMIN_PASSWORD_HASH?.trim();
+  if (hash) {
+    console.warn(
+      '[env] SESSION_SECRET не задан — используется запасной секрет, выведенный из ADMIN_PASSWORD_HASH. Для надёжности добавьте переменную SESSION_SECRET.',
+    );
+    return crypto.createHash('sha256').update(`titan-session-secret:${hash}`).digest('hex');
+  }
+
   if (isProduction) {
     console.warn(
       '[env] SESSION_SECRET не задан — используется временный секрет. Добавьте переменную в настройках хостинга, иначе сессии будут сбрасываться при каждом перезапуске.',

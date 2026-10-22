@@ -1,0 +1,23 @@
+# Конфигурация деплоя на Render (https://render.com).
+# Репозиторий подключается как Web Service — Render сам подхватит эти настройки.
+# Бесплатный план: база SQLite живёт в памяти инстанса и стирается при
+# перезапуске/редеплое — для постоянных данных подключите платный план с диском.
+services:
+  - type: web
+    name: titan-fc
+    runtime: node
+    plan: free
+    # --include=dev: сборке клиента нужны vite и typescript
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    envVars:
+      # node:sqlite (встроенный SQLite) не требует флагов начиная с Node 24
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      # Вставьте значения из вашего локального файла .env
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: SESSION_SECRET
+        sync: false

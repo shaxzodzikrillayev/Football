@@ -52,14 +52,14 @@ authRouter.post('/login', (req: Request, res: Response) => {
 
   res.cookie(SESSION_COOKIE, session.token, {
     httpOnly: true,
-    secure: config.isProduction,
+    secure: config.cookieSecure,
     sameSite: 'lax',
     path: '/',
     maxAge,
   });
   res.cookie(CSRF_COOKIE, session.csrfToken, {
     httpOnly: false,
-    secure: config.isProduction,
+    secure: config.cookieSecure,
     sameSite: 'lax',
     path: '/',
     maxAge,

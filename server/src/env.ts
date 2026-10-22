@@ -53,6 +53,13 @@ export const config = {
   loginMaxAttempts: int(process.env.LOGIN_MAX_ATTEMPTS, 6),
   loginWindowMinutes: int(process.env.LOGIN_WINDOW_MINUTES, 15),
   loginLockMinutes: int(process.env.LOGIN_LOCK_MINUTES, 15),
+  // secure-куки нужны за HTTPS. Если сайт работает по обычному http
+  // (локально или на хостинге без TLS) — поставьте COOKIE_SECURE=false,
+  // иначе браузер молча отбросит куки сессии и админка «не будет сохранять».
+  cookieSecure:
+    process.env.COOKIE_SECURE !== undefined
+      ? process.env.COOKIE_SECURE === 'true'
+      : isProduction,
   corsOrigins: (process.env.CORS_ORIGINS ?? '')
     .split(',')
     .map((o) => o.trim())

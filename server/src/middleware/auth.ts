@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { config } from '../env.js';
 import {
   findSession,
   isValidCsrf,
@@ -6,6 +7,18 @@ import {
 } from '../services/authService.js';
 import { SESSION_COOKIE } from '../../../shared/constants.js';
 import { forbidden, unauthorized } from './errors.js';
+
+/** Извлекает домен из URL или строки вида «хост:порт». */
+function hostnameOf(value: string): string | null {
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) return null;
+  try {
+    return new URL(trimmed).hostname;
+  } catch {
+    const host = trimmed.replace(/^[a-z]+:\/\//, '').split('/')[0].split(':')[0];
+    return host || null;
+  }
+}
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -54,15 +67,15 @@ export function requireCsrf(req: Request, _res: Response, next: NextFunction): v
 
   const origin = req.get('origin');
   if (origin) {
-    try {
-      const originHost = new URL(origin).host;
-      const requestHost = req.get('host');
-      if (originHost && requestHost && originHost !== requestHost) {
-        next(forbidden('Запрос отклонён: несовпадение источника'));
-        return;
-      }
-    } catch {
-      next(forbidden('Запрос отклонён: некорректный источник'));
+    const originHost = hostnameOf(origin);
+    // req.hostname учитывает reverse-proxy (X-Forwarded-Host) и игнорирует порт:
+    // в dev Vite-прокси ходит на :3001 с Origin :5173 — это один и тот же хост.
+    const requestHost = (req.hostname || '').toLowerCase();
+    const isSameHost = Boolean(originHost && requestHost && originHost === requestHost);
+    const isAllowedOrigin = config.corsOrigins.includes(origin);
+
+    if (!isSameHost && !isAllowedOrigin) {
+      next(forbidden('Запрос отклонён: несовпадение источника'));
       return;
     }
   }

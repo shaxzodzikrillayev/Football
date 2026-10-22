@@ -1,18 +1,9 @@
-import { assertServerConfig, config } from './env.js';
-import { runMigrations } from './db/index.js';
-import { ensureUploadDirs } from './services/storage.js';
-import { purgeExpiredSessions } from './services/authService.js';
-import { seedDemoData } from './db/seed.js';
-import { seedClubValues } from './services/repository.js';
+import { config } from './env.js';
+import { ensureBoot } from './boot.js';
 import { createApp } from './app.js';
 
 async function main(): Promise<void> {
-  assertServerConfig();
-  runMigrations();
-  ensureUploadDirs();
-  purgeExpiredSessions();
-  seedDemoData();
-  seedClubValues();
+  await ensureBoot();
 
   const app = createApp();
   const server = app.listen(config.port, () => {
@@ -29,17 +20,9 @@ async function main(): Promise<void> {
 
   process.on('SIGINT', () => shutdown('SIGINT'));
   process.on('SIGTERM', () => shutdown('SIGTERM'));
-
-  // Сервер не должен падать из-за одного необработанного отклонения.
-  process.on('unhandledRejection', (reason) => {
-    console.error('[server] необработанное отклонение промиса:', reason);
-  });
-  process.on('uncaughtException', (error) => {
-    console.error('[server] неперехваченное исключение:', error);
-  });
 }
 
-main().catch((error) => {
-  console.error('[server] не удалось запустить сервер:\n', error instanceof Error ? error.message : error);
+main().catch((error: unknown) => {
+  console.error('[server] не удалось запуститься:', error);
   process.exit(1);
 });

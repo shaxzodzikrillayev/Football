@@ -2,13 +2,22 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { config } from '../env.js';
+import { cloudDb } from './cloudSync.js';
 import { MIGRATIONS } from './migrations.js';
 
-fs.mkdirSync(path.dirname(config.databasePath), { recursive: true });
+// Облачный режим (Vercel и т.п.): файловая система только для чтения,
+// поэтому база живёт в памяти, а синхронизируется с Upstash Redis (cloudSync.ts).
+const useMemory = cloudDb.enabled;
 
-export const db = new DatabaseSync(config.databasePath);
+if (!useMemory) {
+  fs.mkdirSync(path.dirname(config.databasePath), { recursive: true });
+}
 
-db.exec('PRAGMA journal_mode = WAL;');
+export const db = new DatabaseSync(useMemory ? ':memory:' : config.databasePath);
+
+if (!useMemory) {
+  db.exec('PRAGMA journal_mode = WAL;');
+}
 db.exec('PRAGMA foreign_keys = ON;');
 db.exec('PRAGMA busy_timeout = 5000;');
 

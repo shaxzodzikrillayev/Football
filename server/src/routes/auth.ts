@@ -47,7 +47,7 @@ authRouter.post('/login', (req: Request, res: Response) => {
   }
 
   resetLoginAttempts(ip);
-  const session = createSession(ip, req.get('user-agent') ?? null);
+  const session = createSession();
   const maxAge = config.sessionTtlHours * 3600 * 1000;
 
   res.cookie(SESSION_COOKIE, session.token, {

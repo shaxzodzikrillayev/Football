@@ -2,7 +2,6 @@ import { assertServerConfig } from './env.js';
 import { db, runMigrations } from './db/index.js';
 import { cloudDb, installCloudSync } from './db/cloudSync.js';
 import { ensureUploadDirs } from './services/storage.js';
-import { purgeExpiredSessions } from './services/authService.js';
 import { seedDemoData } from './db/seed.js';
 import { seedClubValues } from './services/repository.js';
 
@@ -42,7 +41,6 @@ export async function ensureBoot(): Promise<void> {
     );
   }
 
-  purgeExpiredSessions();
   seedDemoData();
   seedClubValues();
 }

@@ -1,85 +1,69 @@
+import crypto from 'node:crypto';
 import { config } from '../env.js';
-import { db, nowIso } from '../db/index.js';
-import { randomToken, safeEqual, signToken } from './password.js';
+import { db } from '../db/index.js';
+import { randomToken, safeEqual } from './password.js';
 import { CSRF_COOKIE, SESSION_COOKIE } from '../../../shared/constants.js';
 
+/**
+ * Бессерверные (stateless) сессии: вся информация лежит в самой куке
+ * «payload.signature», подписанной HMAC секретом сервера.
+ *
+ * Зачем: на Vercel сайт обслуживают несколько независимых копий сервера без
+ * общего диска. Сессии в базе одной копии невидимы другой → 401 и выкидывание
+ * из админки. Подписанную куку проверяет ЛЮБАЯ копия мгновенно: нужен только
+ * секрет, а он одинаков у всех (из SESSION_SECRET или выводится из
+ * ADMIN_PASSWORD_HASH — см. env.ts).
+ *
+ * CSRF: кука `titan_csrf` открыта для JS (double-submit), но сверяется с
+ * csrf-токеном ВНУТРИ подписанной куки — подделать без секрета невозможно.
+ */
 export interface SessionRecord {
-  id: number;
-  tokenHash: string;
   csrfToken: string;
-  createdAt: string;
   expiresAt: string;
-  ip: string | null;
-  userAgent: string | null;
 }
 
-interface SessionRow {
-  id: number;
-  token_hash: string;
-  csrf_token: string;
-  created_at: string;
-  expires_at: string;
-  ip: string | null;
-  user_agent: string | null;
+function sign(payload: string): string {
+  return crypto
+    .createHmac('sha256', config.sessionSecret)
+    .update(`titan-session:${payload}`)
+    .digest('base64url');
 }
 
-function rowToSession(row: SessionRow): SessionRecord {
-  return {
-    id: row.id,
-    tokenHash: row.token_hash,
-    csrfToken: row.csrf_token,
-    createdAt: row.created_at,
-    expiresAt: row.expires_at,
-    ip: row.ip,
-    userAgent: row.user_agent,
-  };
-}
-
-export function createSession(ip: string | null, userAgent: string | null): {
-  token: string;
-  csrfToken: string;
-  expiresAt: Date;
-} {
-  const token = randomToken(32);
+export function createSession(): { token: string; csrfToken: string; expiresAt: Date } {
   const csrfToken = randomToken(24);
-  const tokenHash = signToken(token, config.sessionSecret);
   const expiresAt = new Date(Date.now() + config.sessionTtlHours * 3600 * 1000);
-
-  db.prepare(
-    `INSERT INTO sessions (token_hash, csrf_token, created_at, expires_at, ip, user_agent)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-  ).run(tokenHash, csrfToken, nowIso(), expiresAt.toISOString(), ip, userAgent);
-
-  return { token, csrfToken, expiresAt };
+  const payload = Buffer.from(
+    JSON.stringify({ csrf: csrfToken, exp: expiresAt.getTime() }),
+    'utf8',
+  ).toString('base64url');
+  return { token: `${payload}.${sign(payload)}`, csrfToken, expiresAt };
 }
 
 export function findSession(token: string): SessionRecord | null {
   if (!token) return null;
-  const tokenHash = signToken(token, config.sessionSecret);
-  const row = db
-    .prepare('SELECT * FROM sessions WHERE token_hash = ?')
-    .get(tokenHash) as SessionRow | undefined;
-  if (!row) return null;
+  const dot = token.lastIndexOf('.');
+  if (dot <= 0) return null;
 
-  if (new Date(row.expires_at).getTime() <= Date.now()) {
-    db.prepare('DELETE FROM sessions WHERE id = ?').run(row.id);
+  const payload = token.slice(0, dot);
+  const signature = token.slice(dot + 1);
+  if (!safeEqual(signature, sign(payload))) return null;
+
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as {
+      csrf?: unknown;
+      exp?: unknown;
+    };
+    if (typeof data.csrf !== 'string' || typeof data.exp !== 'number') return null;
+    if (data.exp <= Date.now()) return null;
+    return { csrfToken: data.csrf, expiresAt: new Date(data.exp).toISOString() };
+  } catch {
     return null;
   }
-  return rowToSession(row);
 }
 
-export function destroySession(token: string): void {
-  if (!token) return;
-  const tokenHash = signToken(token, config.sessionSecret);
-  db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(tokenHash);
-}
-
-export function destroyAllSessions(): void {
-  db.prepare('DELETE FROM sessions').run();
-}
-
-export function purgeExpiredSessions(): void {
-  db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(nowIso());
+/** Куку очищает клиент; отозвать подпись на сервере не нужно — она истекает сама. */
+export function destroySession(_token: string): void {
+  /* no-op для stateless-сессий */
 }
 
 /** Сверяет CSRF-токен из заголовка с токеном сессии. */

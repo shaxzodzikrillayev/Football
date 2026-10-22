@@ -41,6 +41,11 @@ export async function ensureBoot(): Promise<void> {
     );
   }
 
-  seedDemoData();
-  seedClubValues();
+  // Демо-данные (игроки-примеры, ценности-примеры) больше не добавляются сами:
+  // клуб наполняет администратор через админ-панель. Вернуть демо можно
+  // переменной окружения SEED_DEMO=true.
+  if (process.env.SEED_DEMO === 'true') {
+    seedDemoData();
+    seedClubValues();
+  }
 }

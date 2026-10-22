@@ -4,6 +4,8 @@ import express from 'express';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { config } from './env.js';
+import { db } from './db/index.js';
+import { cloudDb, refreshFromCloud, syncToCloud } from './db/cloudSync.js';
 import { attachSession, requireAuth } from './middleware/auth.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 import { authRouter } from './routes/auth.js';
@@ -58,6 +60,43 @@ export function createApp(): express.Express {
         return;
       }
       next();
+    });
+  }
+
+  // Облачный режим (Vercel): сайт обслуживается несколькими «копиями» сервера.
+  // Перед каждым запросом подтягиваем свежий снимок базы из Upstash — иначе
+  // сессия, созданная на одной копии, невидимой другой (401 и выкидывание
+  // из админки). Перед ответом на изменение снимок дописывается ДО отправки.
+  if (cloudDb.enabled) {
+    app.use((req, res, next) => {
+      void (async () => {
+        try {
+          await refreshFromCloud(db);
+        } catch (error) {
+          console.error('[cloud] обновление из облака не удалось:', error);
+        }
+
+        if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
+          const response = res as unknown as { json: (body: unknown) => unknown };
+          const originalJson = res.json.bind(res) as (body: unknown) => unknown;
+          response.json = (body: unknown) =>
+            (async () => {
+              try {
+                await syncToCloud(db);
+              } catch (error) {
+                console.error('[cloud] запись снимка не удалась:', error);
+              }
+              return originalJson(body);
+            })() as unknown;
+        }
+
+        // Подстраховка: если ответ ушёл не через res.json — дописать всё же пытаемся.
+        res.on('finish', () => {
+          void syncToCloud(db).catch(() => undefined);
+        });
+
+        next();
+      })();
     });
   }
 

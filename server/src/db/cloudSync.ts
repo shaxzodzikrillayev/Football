@@ -143,23 +143,36 @@ function hydrateFromCloud(db: DatabaseSync, raw: string | null): boolean {
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let dirty = false;
-let saving = false;
+/** true, пока идёт гидратация из облака — её DELETE/INSERT не должны помечать базу «грязной». */
+let hydrating = false;
+/** Сериализует параллельные записи снимка (вызовы выстраиваются в цепочку). */
+let saveChain: Promise<void> = Promise.resolve();
 
-async function flushNow(db: DatabaseSync): Promise<void> {
-  if (!dirty || saving) return;
-  saving = true;
-  dirty = false;
-  try {
-    await redisSet(buildSnapshot(db));
-  } catch (error) {
-    dirty = true;
-    console.error('[cloud] не удалось сохранить снимок базы:', error);
-  } finally {
-    saving = false;
-  }
+/**
+ * Гарантированно записывает накопленные изменения в облако (дожидается
+ * предыдущих записей). Если менять нечего — возвращает сразу без сети.
+ */
+function flushNow(db: DatabaseSync): Promise<void> {
+  saveChain = saveChain.then(async () => {
+    if (!dirty) return;
+    dirty = false;
+    try {
+      await redisSet(buildSnapshot(db));
+    } catch (error) {
+      dirty = true;
+      console.error('[cloud] не удалось сохранить снимок базы:', error);
+    }
+  });
+  return saveChain;
+}
+
+/** Публичный алиас: запись снимка в облако перед отправкой ответа на мутацию. */
+export function syncToCloud(db: DatabaseSync): Promise<void> {
+  return flushNow(db);
 }
 
 function scheduleSave(db: DatabaseSync): void {
+  if (hydrating) return;
   dirty = true;
   if (saveTimer) return;
   saveTimer = setTimeout(() => {
@@ -167,6 +180,36 @@ function scheduleSave(db: DatabaseSync): void {
     void flushNow(db);
   }, 400);
   saveTimer.unref?.();
+}
+
+/* --------------------------- Обновление из облака --------------------------- */
+
+/**
+ * Перед запросом подтягивает свежий снимок из облака.
+ *
+ * На Vercel один и тот же сайт обслуживают несколько независимых «копий»
+ * сервера: сессия, созданная во время логина на копии A, не видна копии B —
+ * отсюда 401 и выбрасывание из админки. Чтение снимка перед каждым запросом
+ * делает все копии согласованными (1 бесплатный GET на запрос).
+ */
+export async function refreshFromCloud(db: DatabaseSync): Promise<void> {
+  if (!cloudDb.enabled) return;
+
+  // Сначала дописываем локальные изменения, чтобы не потерять их гидратацией.
+  if (dirty) await flushNow(db);
+
+  const raw = await redisGet().catch((error: unknown) => {
+    console.error('[cloud] не удалось обновить снимок из Upstash:', error);
+    return null;
+  });
+  if (!raw) return;
+
+  hydrating = true;
+  try {
+    hydrateFromCloud(db, raw);
+  } finally {
+    hydrating = false;
+  }
 }
 
 /* --------------------------------- Установка -------------------------------- */

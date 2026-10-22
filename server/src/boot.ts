@@ -16,7 +16,15 @@ export async function ensureBoot(): Promise<void> {
   if (booted) return;
   booted = true;
 
-  assertServerConfig();
+  try {
+    assertServerConfig();
+  } catch (error) {
+    // Не роняем сервер: сайт сможет открываться, а вход в админку заработает,
+    // как только ADMIN_PASSWORD_HASH появится в переменных окружения.
+    // (verifyPassword на пустом хеше всегда возвращает false — вход закрыт.)
+    console.error('[boot]', error instanceof Error ? error.message : error);
+  }
+
   runMigrations();
 
   if (cloudDb.enabled) {

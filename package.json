@@ -5,7 +5,7 @@
   "description": "TITAN FC — официальный сайт футбольного клуба (React + TypeScript + Vite + Three.js + Express + SQLite)",
   "type": "module",
   "engines": {
-    "node": ">=22.5.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "concurrently -n server,client -c magenta,cyan \"npm:dev:server\" \"npm:dev:client\"",

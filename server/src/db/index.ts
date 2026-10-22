@@ -7,7 +7,10 @@ import { MIGRATIONS } from './migrations.js';
 
 // Облачный режим (Vercel и т.п.): файловая система только для чтения,
 // поэтому база живёт в памяти, а синхронизируется с Upstash Redis (cloudSync.ts).
-const useMemory = cloudDb.enabled;
+// Даже без переменных Redis на Vercel работаем в памяти — лучше «временная» база,
+// чем падение от попытки создать файл на read-only диске.
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const useMemory = cloudDb.enabled || isVercel;
 
 if (!useMemory) {
   fs.mkdirSync(path.dirname(config.databasePath), { recursive: true });

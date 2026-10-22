@@ -28,13 +28,14 @@ function resolveSessionSecret(): string {
   const fromEnv = process.env.SESSION_SECRET?.trim();
   if (fromEnv && fromEnv.length >= 16) return fromEnv;
   if (isProduction) {
-    throw new Error(
-      'SESSION_SECRET обязателен в production. Сгенерируйте случайную строку: node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"',
+    console.warn(
+      '[env] SESSION_SECRET не задан — используется временный секрет. Добавьте переменную в настройках хостинга, иначе сессии будут сбрасываться при каждом перезапуске.',
+    );
+  } else {
+    console.warn(
+      '[env] SESSION_SECRET не задан — используется временный секрет. Сессии сбросятся при перезапуске сервера (это нормально для разработки).',
     );
   }
-  console.warn(
-    '[env] SESSION_SECRET не задан — используется временный секрет. Сессии сбросятся при перезапуске сервера (это нормально для разработки).',
-  );
   return crypto.randomBytes(48).toString('hex');
 }
 

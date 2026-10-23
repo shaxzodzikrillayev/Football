@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUp, Instagram, Send, Youtube, Music2 } from 'lucide-react';
 import ClubLogo from './ClubLogo';
 import { useSite } from '../services/SiteContext';
+import { scrollToSection } from '../utils/scrollToSection';
 
 const QUICK_LINKS = [
   { id: 'home', label: 'Главная' },
@@ -20,10 +21,21 @@ export default function Footer() {
   const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 600);
-    onScroll();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setShowTop(window.scrollY > 600);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   const socialItems = [
@@ -34,8 +46,7 @@ export default function Footer() {
   ].filter((item) => Boolean(item.url));
 
   const goTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToSection(id);
   };
 
   return (
@@ -48,7 +59,7 @@ export default function Footer() {
             clubName={settings?.clubName ?? 'TITAN FC'}
             tagline="Football Club"
           />
-          <p className="footer__motto gold-word">{settings?.motto ?? 'Сила в единству. Победа в сердце!'}</p>
+          <p className="footer__motto gold-word">{settings?.motto ?? 'Сила в единстве. Победа в сердце!'}</p>
           <p className="footer__tagline">{settings?.footerText ?? 'Официальный сайт команды TITAN FC'}</p>
         </div>
 

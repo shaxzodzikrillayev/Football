@@ -69,6 +69,16 @@ export function createApp(): express.Express {
   // из админки). Перед ответом на изменение снимок дописывается ДО отправки.
   if (cloudDb.enabled) {
     app.use((req, res, next) => {
+      // Статика и медиа не зависят от базы: не тратим на них запросы к Redis.
+      if (
+        !req.path.startsWith('/api/') ||
+        req.path === '/api/health' ||
+        req.path.startsWith('/api/media/')
+      ) {
+        next();
+        return;
+      }
+
       void (async () => {
         try {
           await refreshFromCloud(db);

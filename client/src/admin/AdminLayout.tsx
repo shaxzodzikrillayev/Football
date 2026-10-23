@@ -6,12 +6,12 @@ import {
   Crown,
   ExternalLink,
   Gem,
-  GraduationCap,
   LayoutDashboard,
   LogOut,
   Menu,
   Settings,
   Swords,
+  UserRound,
   Users,
   X,
 } from 'lucide-react';
@@ -22,7 +22,7 @@ import { useSite } from '../services/SiteContext';
 
 export const ADMIN_SECTIONS = [
   { id: 'overview', label: 'Главная', icon: LayoutDashboard },
-  { id: 'coach', label: 'Учительница', icon: GraduationCap },
+  { id: 'coach', label: 'Тренер', icon: UserRound },
   { id: 'captains', label: 'Капитаны', icon: Crown },
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'tactics', label: 'Тактика', icon: Swords },

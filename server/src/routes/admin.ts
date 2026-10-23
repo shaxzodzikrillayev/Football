@@ -484,13 +484,21 @@ adminRouter.put('/lineups/:formation', (req: Request, res: Response) => {
   if (!isFormationCode(formation)) throw badRequest('Неизвестная схема');
   const body = requireBody(req);
   const assignments = Array.isArray(body.assignments) ? body.assignments : [];
+  const code = formation as FormationCode;
+  const validSlots = new Set(formationSlots(code).map((slot) => slot.key));
 
   for (const item of assignments) {
     const entry = item as { slot?: unknown; playerId?: unknown };
     const slot = str(entry.slot, '', 20);
     if (!slot) continue;
+    if (!validSlots.has(slot)) {
+      throw badRequest(`В схеме ${formation} нет позиции «${slot}»`);
+    }
     const playerId = entry.playerId === null ? null : int(entry.playerId, 0, 1);
-    repo.setLineupSlot(formation as FormationCode, slot, playerId && playerId > 0 ? playerId : null);
+    if (playerId !== null && playerId > 0 && !repo.getPlayer(playerId)) {
+      throw badRequest('Игрок не найден');
+    }
+    repo.setLineupSlot(code, slot, playerId && playerId > 0 ? playerId : null);
   }
 
   res.json(repo.getLineups());
@@ -503,6 +511,11 @@ adminRouter.post('/lineups/:formation/swap', (req: Request, res: Response) => {
   const first = str(body.first, '', 20);
   const second = str(body.second, '', 20);
   if (!first || !second) throw badRequest('Укажите две позиции для обмена');
+  if (first === second) throw badRequest('Выберите две разные позиции');
+  const validSlots = new Set(formationSlots(formation).map((slot) => slot.key));
+  if (!validSlots.has(first) || !validSlots.has(second)) {
+    throw badRequest(`В схеме ${formation} нет выбранной позиции`);
+  }
   repo.swapLineupSlots(formation as FormationCode, first, second);
   res.json(repo.getLineups());
 });

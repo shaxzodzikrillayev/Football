@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, ShieldCheck, X } from 'lucide-react';
 import ClubLogo from './ClubLogo';
 import { useSite } from '../services/SiteContext';
+import { scrollToSection } from '../utils/scrollToSection';
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Главная' },
@@ -21,7 +22,10 @@ export default function Header() {
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
-    const onScroll = () => {
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
       setScrolled(window.scrollY > 24);
 
       const offset = window.scrollY + 140;
@@ -33,9 +37,21 @@ export default function Header() {
       setActiveSection(current);
     };
 
-    onScroll();
+    // Один пересчёт на кадр вместо setState на каждое событие scroll:
+    // иначе при прокрутке страница заметно подтормаживает.
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -47,7 +63,7 @@ export default function Header() {
     return () => document.body.classList.remove('is-locked');
   }, [menuOpen]);
 
-  const scrollToSection = useCallback(
+  const goToSection = useCallback(
     (id: string) => {
       setMenuOpen(false);
 
@@ -56,11 +72,7 @@ export default function Header() {
         return;
       }
 
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        window.history.replaceState(null, '', `#${id}`);
-      }
+      scrollToSection(id);
     },
     [location.pathname, navigate],
   );
@@ -76,7 +88,7 @@ export default function Header() {
           onClick={(event) => {
             if (location.pathname === '/') {
               event.preventDefault();
-              scrollToSection('home');
+              goToSection('home');
             }
           }}
           aria-label="TITAN FC — на главную"
@@ -97,7 +109,7 @@ export default function Header() {
               className={`nav__link ${activeSection === item.id && location.pathname === '/' ? 'is-active' : ''}`.trim()}
               onClick={(event) => {
                 event.preventDefault();
-                scrollToSection(item.id);
+                goToSection(item.id);
               }}
             >
               {item.label}

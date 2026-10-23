@@ -16,7 +16,7 @@ const META: Record<AdminSectionId, { title: string; subtitle: string }> = {
     subtitle: 'Обзор клуба: состав, капитаны, матчи и статистика',
   },
   coach: {
-    title: 'Учительница',
+    title: 'Тренер',
     subtitle: 'Наставник команды: имя, подпись и фотография',
   },
   captains: {

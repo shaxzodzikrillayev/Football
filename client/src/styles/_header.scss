@@ -13,10 +13,17 @@
   border-bottom: 1px solid transparent;
 
   &.is-scrolled {
-    background: rgba(8, 9, 11, 0.82);
-    backdrop-filter: blur(14px) saturate(140%);
+    background: rgba(8, 9, 11, 0.9);
+    backdrop-filter: blur(10px) saturate(140%);
     border-bottom-color: rgba(212, 175, 55, 0.18);
     box-shadow: 0 18px 40px -32px #000;
+  }
+
+  // На мобильных размытие поверх анимированного 3D-поля заметно роняет FPS.
+  @media (max-width: 900px) {
+    &.is-scrolled {
+      backdrop-filter: none;
+    }
   }
 
   &__inner {

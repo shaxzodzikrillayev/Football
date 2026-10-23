@@ -384,6 +384,13 @@
     radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255, 255, 255, 0.05), transparent 70%);
   filter: blur(12px);
   animation: aurora-drift 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (max-width: 900px) {
+  .hero__aurora {
+    filter: blur(8px);
+  }
 }
 
 @keyframes aurora-drift {
@@ -479,6 +486,10 @@
 @media (prefers-reduced-motion: reduce) {
   .hero__ball,
   .football__glow {
+    animation: none;
+  }
+
+  .hero__aurora {
     animation: none;
   }
 }

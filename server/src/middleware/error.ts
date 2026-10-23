@@ -32,6 +32,26 @@ export function errorHandler(
     return;
   }
 
+  // Ошибки body-parser (битый JSON, слишком большое тело) приходят с полем
+  // status. Раньше они превращались в 500 «Внутренняя ошибка сервера».
+  const status =
+    typeof err === 'object' && err !== null && 'status' in err
+      ? Number((err as { status: unknown }).status)
+      : Number.NaN;
+
+  if (Number.isInteger(status) && status >= 400 && status < 500) {
+    if (status === 413) {
+      res.status(413).json({ error: 'Запрос слишком большой' });
+      return;
+    }
+    if (status === 400) {
+      res.status(400).json({ error: 'Некорректный запрос: проверьте формат данных' });
+      return;
+    }
+    res.status(status).json({ error: 'Некорректный запрос' });
+    return;
+  }
+
   console.error('[api] необработанная ошибка:', err);
   res.status(500).json({ error: 'Внутренняя ошибка сервера' });
 }

@@ -83,6 +83,14 @@ export default function TacticsSection() {
   const [formation, setFormation] = useState<FormationCode>(
     data?.settings.defaultFormation ?? '4-3-3',
   );
+  const pickedFormation = useRef(false);
+
+  useEffect(() => {
+    if (pickedFormation.current) return;
+    const preferred = data?.settings.defaultFormation;
+    if (preferred) setFormation(preferred);
+  }, [data?.settings.defaultFormation]);
+
   const [lineups, setLineups] = useState<Record<string, LineupEntry[]>>({});
   const [players, setPlayers] = useState<Player[]>([]);
   const [busy, setBusy] = useState(false);
@@ -369,7 +377,10 @@ export default function TacticsSection() {
               key={item.code}
               type="button"
               className={`filter-chip ${formation === item.code ? 'is-active' : ''}`.trim()}
-              onClick={() => setFormation(item.code)}
+              onClick={() => {
+                pickedFormation.current = true;
+                setFormation(item.code);
+              }}
             >
               {item.label}
             </button>

@@ -104,4 +104,19 @@ export const MIGRATIONS: { id: string; sql: string }[] = [
       CREATE INDEX IF NOT EXISTS idx_club_values_sort ON club_values(sort_order);
     `,
   },
+  {
+    // Исправление опечатки в стандартном девизе («в единству» → «в единстве»),
+    // которая успела попасть в уже существующие базы.
+    id: '003_fix_default_motto',
+    sql: `
+      UPDATE settings
+         SET value = replace(value, 'в единству', 'в единстве')
+       WHERE key IN ('motto', 'heroQuote') AND value LIKE '%в единству%';
+
+      UPDATE club_values
+         SET title = replace(title, 'в единству', 'в единстве'),
+             text = replace(text, 'в единству', 'в единстве')
+       WHERE title LIKE '%в единству%' OR text LIKE '%в единству%';
+    `,
+  },
 ];

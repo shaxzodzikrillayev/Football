@@ -7,7 +7,12 @@ import { notFound } from '../middleware/errors.js';
 export const mediaRouter = Router();
 
 mediaRouter.get(/^\/(.+)$/, asyncHandler(async (req: Request, res: Response) => {
-  const key = decodeURIComponent(req.params[0] ?? '');
+  let key: string;
+  try {
+    key = decodeURIComponent(req.params[0] ?? '');
+  } catch {
+    throw notFound('Файл не найден');
+  }
   if (!key || !isSafeKey(key)) {
     throw notFound('Файл не найден');
   }

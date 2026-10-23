@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Users } from 'lucide-react';
 import SectionHeading from '../components/SectionHeading';
 import EmptyState from '../components/EmptyState';
@@ -14,6 +14,15 @@ export default function SquadSection() {
   const [formation, setFormation] = useState<FormationCode>(
     data?.settings.defaultFormation ?? '4-3-3',
   );
+  const pickedFormation = useRef(false);
+
+  // Данные сайта загружаются асинхронно: если пользователь ещё не выбрал схему
+  // вручную, применяем схему по умолчанию из настроек, когда она пришла.
+  useEffect(() => {
+    if (pickedFormation.current) return;
+    const preferred = data?.settings.defaultFormation;
+    if (preferred) setFormation(preferred);
+  }, [data?.settings.defaultFormation]);
   const [selected, setSelected] = useState<Player | null>(null);
 
   const players = data?.players ?? [];
@@ -60,7 +69,10 @@ export default function SquadSection() {
                 role="tab"
                 aria-selected={formation === code}
                 className={`formation-tabs__item ${formation === code ? 'is-active' : ''}`.trim()}
-                onClick={() => setFormation(code)}
+                onClick={() => {
+                  pickedFormation.current = true;
+                  setFormation(code);
+                }}
               >
                 {code}
               </button>

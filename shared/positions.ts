@@ -7,7 +7,7 @@ export const POSITIONS: PositionMeta[] = [
   { code: 'CB', label: 'Центральный защитник', short: 'ЦЗ', group: 'Защитник' },
   { code: 'RB', label: 'Правый защитник', short: 'ПЗ', group: 'Защитник' },
   { code: 'DM', label: 'Опорный полузащитник', short: 'ОП', group: 'Полузащитник' },
-  { code: 'CM', label: 'Центральный полузащитник', short: 'ПЗ', group: 'Полузащитник' },
+  { code: 'CM', label: 'Центральный полузащитник', short: 'ЦП', group: 'Полузащитник' },
   { code: 'AM', label: 'Атакующий полузащитник', short: 'АП', group: 'Полузащитник' },
   { code: 'LW', label: 'Левый нападающий', short: 'ЛН', group: 'Нападающий' },
   { code: 'RW', label: 'Правый нападающий', short: 'ПН', group: 'Нападающий' },

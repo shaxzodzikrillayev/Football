@@ -29,7 +29,7 @@ export const MAX_CLUB_VALUES = 6;
 export const DEFAULT_CLUB_VALUES: Pick<ClubValue, 'icon' | 'title' | 'text'>[] = [
   {
     icon: 'users',
-    title: 'Сила в единству',
+    title: 'Сила в единстве',
     text: 'Играем командой: каждый игрок — часть целого, и победа рождается только вместе.',
   },
   {

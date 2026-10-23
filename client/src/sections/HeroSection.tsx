@@ -50,7 +50,7 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
                 <span className="gold-word">FC</span>
               </h1>
               <p className="hero__subtitle">{settings?.subtitle ?? 'WE ARE TITANS'}</p>
-              <p className="hero__quote">{settings?.heroQuote ?? '«Сила в единству. Победа в сердце!»'}</p>
+              <p className="hero__quote">{settings?.heroQuote ?? '«Сила в единстве. Победа в сердце!»'}</p>
 
               <div className="hero__actions">
                 <button type="button" className="btn btn--gold" onClick={() => onNavigate('squad')}>

@@ -15,13 +15,14 @@ function Ball({
   position,
   scale,
   index,
+  texture,
 }: {
   position: [number, number, number];
   scale: number;
   index: number;
+  texture: THREE.Texture;
 }) {
   const group = useRef<THREE.Group>(null);
-  const texture = useMemo(() => createBallTexture(256), []);
 
   useFrame((state) => {
     if (!group.current) return;
@@ -33,7 +34,7 @@ function Ball({
 
   return (
     <group ref={group} position={position} scale={scale}>
-      <mesh castShadow>
+      <mesh>
         <sphereGeometry args={[0.62, 24, 18]} />
         <meshStandardMaterial map={texture} roughness={0.45} metalness={0.05} />
       </mesh>
@@ -42,10 +43,13 @@ function Ball({
 }
 
 export default function Balls() {
+  // Одна текстура на все мячи: раньше на каждый мяч рисовался свой canvas 256×256.
+  const texture = useMemo(() => createBallTexture(256), []);
+
   return (
     <group>
       {BALLS.map((ball, index) => (
-        <Ball key={index} position={ball.position} scale={ball.scale} index={index} />
+        <Ball key={index} position={ball.position} scale={ball.scale} index={index} texture={texture} />
       ))}
     </group>
   );

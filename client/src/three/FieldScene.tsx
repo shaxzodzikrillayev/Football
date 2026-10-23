@@ -9,11 +9,12 @@ import Stadium from './Stadium';
 import { useReducedMotion } from '../hooks/useMediaQuery';
 
 /** Плавное управление камерой: лёгкое вращение за курсором + медленный автодрейф. */
-function CameraRig({ interactive }: { interactive: boolean }) {
+function CameraRig({ interactive, animated }: { interactive: boolean; animated: boolean }) {
   const { camera, pointer } = useThree();
   const target = useRef(new THREE.Vector3(0, 44, 94));
 
   useFrame((state, delta) => {
+    if (!animated) return;
     const time = state.clock.elapsedTime;
     const drift = Math.sin(time * 0.07) * 0.075;
     const yaw = interactive ? drift + pointer.x * 0.12 : drift;
@@ -23,6 +24,32 @@ function CameraRig({ interactive }: { interactive: boolean }) {
     target.current.set(Math.sin(yaw) * radius, height, Math.cos(yaw) * radius);
     camera.position.lerp(target.current, Math.min(1, delta * 2.4));
     camera.lookAt(0, 1, 0);
+  });
+
+  return null;
+}
+
+/**
+ * Сцена и освещение статичны, поэтому карту теней достаточно посчитать
+ * один раз. Без этого WebGL перерисовывает её каждый кадр — основной
+ * источник «тормозов» на слабых видеокартах.
+ */
+function StaticShadows({ enabled }: { enabled: boolean }) {
+  const { gl } = useThree();
+  const frames = useRef(0);
+
+  useEffect(() => {
+    frames.current = 0;
+    if (enabled) {
+      gl.shadowMap.autoUpdate = true;
+      gl.shadowMap.needsUpdate = true;
+    }
+  }, [gl, enabled]);
+
+  useFrame(() => {
+    if (!enabled) return;
+    frames.current += 1;
+    if (frames.current >= 2) gl.shadowMap.autoUpdate = false;
   });
 
   return null;
@@ -70,6 +97,9 @@ interface FieldSceneProps {
 export default function FieldScene({ className }: FieldSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
+  const [pageVisible, setPageVisible] = useState(
+    () => typeof document === 'undefined' || !document.hidden,
+  );
   const [supported, setSupported] = useState(true);
   const reducedMotion = useReducedMotion();
 
@@ -94,11 +124,20 @@ export default function FieldScene({ className }: FieldSceneProps) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
       setSupported(Boolean(context));
+      // Проверочный контекст больше не нужен — освобождаем его,
+      // чтобы не расходовать лимит WebGL-контекстов браузера.
+      context?.getExtension('WEBGL_lose_context')?.loseContext();
     } catch {
       setSupported(false);
     }
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onVisibilityChange = () => setPageVisible(!document.hidden);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
   }, []);
 
   if (!supported) {
@@ -116,8 +155,8 @@ export default function FieldScene({ className }: FieldSceneProps) {
     <div className={className} ref={containerRef}>
       <Canvas
         shadows={shadows}
-        dpr={[1, 1.6]}
-        frameloop={visible ? 'always' : 'never'}
+        dpr={[1, 1.5]}
+        frameloop={!visible || !pageVisible ? 'never' : reducedMotion ? 'demand' : 'always'}
         camera={{ position: [0, 44, 96], fov: 38, near: 0.5, far: 600 }}
         gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
         onCreated={({ gl, scene }) => {
@@ -128,7 +167,8 @@ export default function FieldScene({ className }: FieldSceneProps) {
         }}
       >
         <Lighting shadows={shadows} />
-        <CameraRig interactive={!reducedMotion} />
+        <StaticShadows enabled={shadows} />
+        <CameraRig interactive={!reducedMotion} animated={!reducedMotion} />
         <Ground />
         <Turf />
         <PitchLines />

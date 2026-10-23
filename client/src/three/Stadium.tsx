@@ -112,13 +112,17 @@ function Floodlights() {
           <mesh position={[0, 26.6, -0.5]} material={lampMaterial}>
             <boxGeometry args={[6.2, 2.6, 0.35]} />
           </mesh>
-          <pointLight
-            position={[0, 24, 0]}
-            intensity={index < 2 ? 260 : 120}
-            distance={130}
-            decay={1.6}
-            color="#ffeec4"
-          />
+          {/* Два источника вместо четырёх: каждый pointLight заметно удорожает
+              шейдинг всей сцены, а дальние фонари всё равно не видны. */}
+          {index < 2 && (
+            <pointLight
+              position={[0, 24, 0]}
+              intensity={260}
+              distance={130}
+              decay={1.6}
+              color="#ffeec4"
+            />
+          )}
         </group>
       ))}
     </group>

@@ -84,7 +84,7 @@ function listTables(db: DatabaseSync): string[] {
   return rows.map((row) => row.name);
 }
 
-function buildSnapshot(db: DatabaseSync): string {
+function buildSnapshot(db: DatabaseSync): Snapshot {
   const tables: Record<string, TableSnapshot> = {};
 
   for (const name of listTables(db)) {
@@ -102,21 +102,24 @@ function buildSnapshot(db: DatabaseSync): string {
     };
   }
 
-  const snapshot: Snapshot = { version: 1, savedAt: new Date().toISOString(), tables };
-  return JSON.stringify(snapshot);
+  return { version: 1, savedAt: new Date().toISOString(), tables };
+}
+
+function parseSnapshot(raw: string | null): Snapshot | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Snapshot;
+    if (!parsed || typeof parsed !== 'object' || !parsed.tables) return null;
+    return parsed;
+  } catch {
+    console.warn('[cloud] снимок в облаке повреждён — начинаем с пустой базы');
+    return null;
+  }
 }
 
 /** Загружает снимок из облака в память. true — если данные были восстановлены. */
-function hydrateFromCloud(db: DatabaseSync, raw: string | null): boolean {
-  if (!raw) return false;
-
-  let snapshot: Snapshot;
-  try {
-    snapshot = JSON.parse(raw) as Snapshot;
-  } catch {
-    console.warn('[cloud] снимок в облаке повреждён — начинаем с пустой базы');
-    return false;
-  }
+function hydrateFromCloud(db: DatabaseSync, snapshot: Snapshot | null): boolean {
+  if (!snapshot) return false;
 
   for (const [name, table] of Object.entries(snapshot.tables ?? {})) {
     const exists = db
@@ -147,6 +150,8 @@ let dirty = false;
 let hydrating = false;
 /** Сериализует параллельные записи снимка (вызовы выстраиваются в цепочку). */
 let saveChain: Promise<void> = Promise.resolve();
+/** savedAt последнего снимка, который уже применён к локальной базе. */
+let lastAppliedSavedAt = '';
 
 /**
  * Гарантированно записывает накопленные изменения в облако (дожидается
@@ -157,7 +162,9 @@ function flushNow(db: DatabaseSync): Promise<void> {
     if (!dirty) return;
     dirty = false;
     try {
-      await redisSet(buildSnapshot(db));
+      const snapshot = buildSnapshot(db);
+      await redisSet(JSON.stringify(snapshot));
+      lastAppliedSavedAt = snapshot.savedAt;
     } catch (error) {
       dirty = true;
       console.error('[cloud] не удалось сохранить снимок базы:', error);
@@ -189,8 +196,9 @@ function scheduleSave(db: DatabaseSync): void {
  *
  * На Vercel один и тот же сайт обслуживают несколько независимых «копий»
  * сервера: сессия, созданная во время логина на копии A, не видна копии B —
- * отсюда 401 и выбрасывание из админки. Чтение снимка перед каждым запросом
- * делает все копии согласованными (1 бесплатный GET на запрос).
+ * отсюда 401 и выбрасывание из админки. Чтение снимка перед запросом
+ * делает все копии согласованными. Гидратация выполняется только если
+ * снимок действительно изменился.
  */
 export async function refreshFromCloud(db: DatabaseSync): Promise<void> {
   if (!cloudDb.enabled) return;
@@ -202,11 +210,13 @@ export async function refreshFromCloud(db: DatabaseSync): Promise<void> {
     console.error('[cloud] не удалось обновить снимок из Upstash:', error);
     return null;
   });
-  if (!raw) return;
+  const snapshot = parseSnapshot(raw);
+  if (!snapshot || snapshot.savedAt === lastAppliedSavedAt) return;
 
   hydrating = true;
   try {
-    hydrateFromCloud(db, raw);
+    hydrateFromCloud(db, snapshot);
+    lastAppliedSavedAt = snapshot.savedAt;
   } finally {
     hydrating = false;
   }
@@ -224,7 +234,9 @@ export async function installCloudSync(db: DatabaseSync): Promise<void> {
     return null;
   });
 
-  const restored = hydrateFromCloud(db, raw);
+  const snapshot = parseSnapshot(raw);
+  const restored = hydrateFromCloud(db, snapshot);
+  lastAppliedSavedAt = snapshot?.savedAt ?? '';
   console.log(
     restored
       ? '[cloud] база восстановлена из Upstash Redis — данные постоянные'

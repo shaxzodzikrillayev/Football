@@ -2,9 +2,9 @@ import type { ClubStats, SiteSettings } from './types.js';
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   clubName: 'TITAN FC',
-  motto: 'Сила в единству. Победа в сердце!',
+  motto: 'Сила в единстве. Победа в сердце!',
   subtitle: 'WE ARE TITANS',
-  heroQuote: '«Сила в единству. Победа в сердце!»',
+  heroQuote: '«Сила в единстве. Победа в сердце!»',
   logo: null,
   footerText: 'Официальный сайт команды TITAN FC',
   contactEmail: '',

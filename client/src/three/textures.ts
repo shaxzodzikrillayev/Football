@@ -22,7 +22,7 @@ export function createGrassTexture(size = 1024): THREE.CanvasTexture {
 
   // Волокна травы
   ctx.globalAlpha = 0.07;
-  for (let i = 0; i < 12000; i += 1) {
+  for (let i = 0; i < 5000; i += 1) {
     const x = Math.random() * size;
     const y = Math.random() * size;
     const len = 3 + Math.random() * 7;
@@ -125,7 +125,7 @@ export function createStandTexture(size = 256): THREE.CanvasTexture {
   ctx.fillStyle = '#14161b';
   ctx.fillRect(0, 0, size, size);
 
-  for (let i = 0; i < 2600; i += 1) {
+  for (let i = 0; i < 1400; i += 1) {
     const x = Math.random() * size;
     const y = Math.random() * size;
     const alpha = 0.05 + Math.random() * 0.22;

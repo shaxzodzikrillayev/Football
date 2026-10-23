@@ -128,7 +128,7 @@ function ValueEditor({
               value={title}
               maxLength={60}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="Сила в единству"
+              placeholder="Сила в единстве"
             />
           </label>
 

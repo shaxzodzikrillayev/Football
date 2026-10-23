@@ -107,7 +107,17 @@ export default function PlayersSection() {
       adminApi.listPlayers(),
       adminApi.getLineups(),
     ]);
-    setPlayers(list);
+    setPlayers((prev) => {
+      if (keepSelection && selectedId !== null) {
+        const exists = list.find((p) => p.id === selectedId);
+        if (exists) {
+          // Если карточка редактируется — не перезаписываем форму из списка.
+          // Обновим только список игроков, чтобы счётчики/статус подтянулись.
+          return list;
+        }
+      }
+      return list;
+    });
     setLineups(lineupsData);
     if (!keepSelection) setSelectedId(null);
     return list;
@@ -132,9 +142,15 @@ export default function PlayersSection() {
   );
 
   useEffect(() => {
+    if (selected && selectedId === selected.id) {
+      // Обновляем форму только если полей нет в процессе набора — но проще:
+      // не трогаем форму при авто-рефреше списка, перезаписываем только при смене выбранного игрока.
+      return;
+    }
     if (selected) setForm(toForm(selected));
     else setForm(EMPTY_FORM);
-  }, [selected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
 
   const startersInFormation = useMemo(() => {
     const set = new Set<number>();

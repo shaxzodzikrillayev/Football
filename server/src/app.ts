@@ -87,17 +87,13 @@ export function createApp(): express.Express {
         }
 
         if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
-          const response = res as unknown as { json: (body: unknown) => unknown };
-          const originalJson = res.json.bind(res) as (body: unknown) => unknown;
-          response.json = (body: unknown) =>
-            (async () => {
-              try {
-                await syncToCloud(db);
-              } catch (error) {
-                console.error('[cloud] запись снимка не удалась:', error);
-              }
-              return originalJson(body);
-            })() as unknown;
+          const originalJson = res.json.bind(res);
+          res.json = ((body: unknown) => {
+            void syncToCloud(db).catch((error) => {
+              console.error('[cloud] запись снимка не удалась:', error);
+            });
+            return originalJson(body);
+          }) as typeof res.json;
         }
 
         // Подстраховка: если ответ ушёл не через res.json — дописать всё же пытаемся.
